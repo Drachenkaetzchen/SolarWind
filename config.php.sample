@@ -1,0 +1,6 @@
+<?php
+
+$apikey = "";
+$cosmuri = "http://api.cosm.com/v2/feeds/128675/";
+$port = "/dev/ttyUSB0";
+
