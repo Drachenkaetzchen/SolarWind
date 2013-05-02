@@ -8,6 +8,8 @@ $data = array();
 $datapoints = array();
 $counter = 0;
 
+$fp = fopen($logfile, "w+");
+
 while (1) {
 	$read = $serial->readPort();
 	
@@ -16,8 +18,8 @@ while (1) {
 			parseLine($read, $data, $datapoints);
 		}
 
-		// 250 datapoints equals about half a minute
-		if ($counter > 250) {
+		// 100 datapoints equals about one minute
+		if ($counter > 100) {
 			$counter = 0;
 
 			$pushData = array(
@@ -25,8 +27,11 @@ while (1) {
 				"current_battery" => $data["current_battery"] / $datapoints["current_battery"],
 				"voltage_battery" => $data["voltage_battery"] / $datapoints["voltage_battery"],
 				"current_cell" => $data["current_cell"] / $datapoints["current_cell"],
-				"voltage_cell" => $data["voltage_cell"] / $datapoints["voltage_cell"]
+				"voltage_cell" => $data["voltage_cell"] / $datapoints["voltage_cell"],
 			);
+
+			$pushData["power_cell"] = $pushData["current_cell"] * $pushData["voltage_cell"] / 1000;
+			$pushData["power_circuit"] = $pushData["current_battery"] * $pushData["voltage_battery"] / 1000;
 
 			pushToCosm($pushData, $apikey, $cosmuri);
 
@@ -37,10 +42,14 @@ while (1) {
 		$counter++;
 	}
 
-	sleep(1);
+	usleep(100000);
 }
 
+function dlog ($line) {
+	global $fp;
 
+	fputs($fp, $line ."\n");
+}
 function parseLine ($line, &$data, &$datapoints) {
 	$parts = explode(": ", $line);
 
@@ -104,7 +113,10 @@ function pushToCosm ($data, $apikey, $uri) {
 	);
 
 	file_put_contents("/tmp/cosm.json", json_encode($data));
-        $cli = 'curl --request PUT --data-binary @/tmp/cosm.json --header "X-ApiKey: '.$apikey.'" '.$uri;
+        $cli = 'curl --retry 2 --request PUT --data-binary @/tmp/cosm.json --header "X-ApiKey: '.$apikey.'" '.$uri;
+
+	dlog($cli);
+	dlog(json_encode($data));
 
 	exec($cli);
 }
