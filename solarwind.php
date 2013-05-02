@@ -16,7 +16,8 @@ while (1) {
 			parseLine($read, $data, $datapoints);
 		}
 
-		if ($counter > 50) {
+		// 250 datapoints equals about half a minute
+		if ($counter > 250) {
 			$counter = 0;
 
 			$pushData = array(
@@ -36,7 +37,7 @@ while (1) {
 		$counter++;
 	}
 
-	sleep(0.1);
+	sleep(1);
 }
 
 
