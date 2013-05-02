@@ -23,15 +23,15 @@ while (1) {
 			$counter = 0;
 
 			$pushData = array(
-				"temperature" => $data["temperature"] / $datapoints["temperature"],
-				"current_battery" => $data["current_battery"] / $datapoints["current_battery"],
-				"voltage_battery" => $data["voltage_battery"] / $datapoints["voltage_battery"],
-				"current_cell" => $data["current_cell"] / $datapoints["current_cell"],
-				"voltage_cell" => $data["voltage_cell"] / $datapoints["voltage_cell"],
+				"temperature" => round($data["temperature"] / $datapoints["temperature"],2),
+				"current_battery" => round($data["current_battery"] / $datapoints["current_battery"],2),
+				"voltage_battery" => round($data["voltage_battery"] / $datapoints["voltage_battery"],2),
+				"current_cell" => round($data["current_cell"] / $datapoints["current_cell"],2),
+				"voltage_cell" => round($data["voltage_cell"] / $datapoints["voltage_cell"],2),
 			);
 
-			$pushData["power_cell"] = $pushData["current_cell"] * $pushData["voltage_cell"] / 1000;
-			$pushData["power_circuit"] = $pushData["current_battery"] * $pushData["voltage_battery"] / 1000;
+			$pushData["power_cell"] = round($pushData["current_cell"] * $pushData["voltage_cell"] / 1000,2);
+			$pushData["power_circuit"] = round($pushData["current_battery"] * $pushData["voltage_battery"] / 1000,2);
 
 			pushToCosm($pushData, $apikey, $cosmuri);
 
