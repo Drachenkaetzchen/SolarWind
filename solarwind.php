@@ -119,4 +119,10 @@ function pushToCosm ($data, $apikey, $uri) {
 	dlog(json_encode($data));
 
 	exec($cli);
+
+	// We can't use date() here, because tzdata is missing on the carambola openwrt distribution
+	$date = trim(`date -Iseconds`);
+
+	$cli2 = 'scp -i /root/.ssh/id_rsa /tmp/cosm.json "felicitus@172.22.117.181:/share/solarwind/'.$date.'.json"';
+	exec($cli2);
 }
