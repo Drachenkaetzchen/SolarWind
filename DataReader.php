@@ -9,7 +9,6 @@ class DataReader {
     private $usedWattHours;
     private $harvestedWattHours;
     private $currentDate;
-    private $wattHourDifference;
 
     private $startupToday = true;
     private $startupTime;
@@ -23,7 +22,6 @@ class DataReader {
         $this->usedWattHours = new Value("Wh");
         $this->harvestedWattHours = new Value("Wh");
         $this->currentDate = $this->getDate();
-        $this->wattHourDifference = new Value("Wh");
 
         $this->startupTime = `date +%H:%M:%S`;
     }
@@ -33,8 +31,6 @@ class DataReader {
 
         $this->usedWattHours->logValue(($this->current1->getAverage() / 1000) * $this->voltage1->getAverage());
         $this->harvestedWattHours->logValue(($this->current0->getAverage() / 1000) * $this->voltage0->getAverage());
-
-        $this->wattHourDifference->logValue($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight() - $this->usedWattHours->getAverage() * $this->getHoursSinceMidnight());
 
         $pushData = array(
             "temperature" => round($this->temperature->getAverage(),$roundPrecision),
@@ -46,7 +42,7 @@ class DataReader {
             "power_circuit" => round($this->current1->getAverage() * $this->voltage1->getAverage() / 1000, $roundPrecision),
             "daily_used_wh" => round($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight(), $roundPrecision),
             "daily_harvested_wh" => round($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight(), $roundPrecision),
-            "watt_hour_difference" => round($this->wattHourDifference->getAverage(), $roundPrecision)
+            "watt_hour_difference" =>round(($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight()) - ($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight()), $roundPrecision),
 
         );
 
@@ -61,7 +57,6 @@ class DataReader {
             $this->startupToday = false;
             $this->usedWattHours->resetData();
             $this->harvestedWattHours->resetData();
-            $this->wattHourDifference->resetData();
             $this->currentDate = $this->getDate();
         }
 
