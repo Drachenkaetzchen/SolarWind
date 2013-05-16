@@ -2,15 +2,23 @@
 
 class DataReader {
     private $temperature;
+
     private $voltage0;
+
     private $voltage1;
+
     private $current0;
+
     private $current1;
+
     private $usedWattHours;
+
     private $harvestedWattHours;
+
     private $currentDate;
 
     private $startupToday = true;
+
     private $startupTime;
 
     public function __construct () {
@@ -25,6 +33,16 @@ class DataReader {
 
         $this->startupTime = `date +%H:%M:%S`;
     }
+
+    public function getDate () {
+        return `date +%Y-%m-%d`;
+    }
+
+    /*
+     * Returns the amount of second since startup or midnight.
+     *
+     * Yes, the method name is a bit misleading.
+     */
 
     public function getPushData () {
         $roundPrecision = 2;
@@ -43,7 +61,6 @@ class DataReader {
             "daily_used_wh" => round($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight(), $roundPrecision),
             "daily_harvested_wh" => round($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight(), $roundPrecision),
             "watt_hour_difference" =>round(($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight()) - ($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight()), $roundPrecision),
-
         );
 
         $this->temperature->resetData();
@@ -63,11 +80,15 @@ class DataReader {
         return $pushData;
     }
 
-    /*
-     * Returns the amount of second since startup or midnight.
+    /**
+     * Returns the amount of hours since startup or midnight.
      *
-     * Yes, the method name is a bit misleading.
+     * @return float
      */
+    public function getHoursSinceMidnight () {
+        return $this->getSecondsSinceMidnight() / 3600;
+    }
+
     public function getSecondsSinceMidnight () {
         // Workaround because tzdata is broken on OpenWRT
         $datestring = `date +%H:%M:%S`;
@@ -83,19 +104,6 @@ class DataReader {
             return ($hour * 3600 + $minute * 60 + $second);
         }
 
-    }
-
-    /**
-     * Returns the amount of hours since startup or midnight.
-     *
-     * @return float
-     */
-    public function getHoursSinceMidnight () {
-        return $this->getSecondsSinceMidnight() / 3600;
-    }
-
-    public function getDate () {
-        return `date +%Y-%m-%d`;
     }
     
     public function parseLine ($line) {

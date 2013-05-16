@@ -10,7 +10,9 @@
  */
 class Value {
     private $unit;
+
     private $sum;
+
     private $numDatapoints;
 
     /**
