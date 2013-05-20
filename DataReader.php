@@ -29,6 +29,7 @@ class DataReader {
         $this->current1 = new Value("mA");
         $this->usedWattHours = new Value("Wh");
         $this->harvestedWattHours = new Value("Wh");
+        $this->uptime = new Value("s");
         $this->currentDate = $this->getDate();
 
         $this->startupTime = `date +%H:%M:%S`;
@@ -60,7 +61,8 @@ class DataReader {
             "power_circuit" => round($this->current1->getAverage() * $this->voltage1->getAverage() / 1000, $roundPrecision),
             "daily_used_wh" => round($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight(), $roundPrecision),
             "daily_harvested_wh" => round($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight(), $roundPrecision),
-            "watt_hour_difference" =>round(($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight()) - ($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight()), $roundPrecision),
+            "watt_hour_difference" => round(($this->harvestedWattHours->getAverage() * $this->getHoursSinceMidnight()) - ($this->usedWattHours->getAverage() * $this->getHoursSinceMidnight()), $roundPrecision),
+            "uptime" => round($this->getUptime() / 86400, $roundPrecision)
         );
 
         $this->temperature->resetData();
@@ -87,6 +89,13 @@ class DataReader {
      */
     public function getHoursSinceMidnight () {
         return $this->getSecondsSinceMidnight() / 3600;
+    }
+
+    public function getUptime () {
+        $uptime = file_get_contents("/proc/uptime");
+        list($uptime) = explode(" ", $uptime);
+
+        return floatval($uptime);
     }
 
     public function getSecondsSinceMidnight () {
