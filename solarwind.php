@@ -74,7 +74,7 @@ function pushToCosm ($data, $apikey, $uri) {
 	);
 
 	file_put_contents("/tmp/cosm.json", json_encode($data));
-        $cli = 'curl --retry 2 --request PUT --data-binary @/tmp/cosm.json --header "X-ApiKey: '.$apikey.'" '.$uri;
+        $cli = 'curl --retry 2 --request PUT -k --data-binary @/tmp/cosm.json --header "X-ApiKey: '.$apikey.'" '.$uri;
 
 	dlog($cli);
 	dlog(json_encode($data));
