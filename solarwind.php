@@ -28,12 +28,31 @@ while (1) {
 			$pushData = $dataReader->getPushData();
 
 			pushToCosm($pushData, $apikey, $cosmuri);
+            pushToGraphite($pushData);
 		}
 
 		$counter++;
 	}
 
 	usleep(100000);
+}
+
+function pushToGraphite ($data) {
+    $prefix = "solarwind.";
+    $timestamp = `date +%s`;
+    $tempfile = "/tmp/graphitedata";
+    $targethost = "solarwind.felicitus.org";
+    $targetport = "2003";
+
+    $outData = "";
+
+    foreach ($data as $key => $value) {
+        $outData .= $prefix.$key . " ". $value . " " . $timestamp;
+    }
+
+    file_put_contents($tempfile, $outData);
+
+    exec("cat $tempfile | nc $targethost $targetport");
 }
 
 function dlog ($line) {
